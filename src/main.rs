@@ -63,9 +63,8 @@ fn check_if_loaded(
         return;
     };
 
-    // get_scene_colliders should be called only once per scene as it will remove the colliders meshes from it
     game_assets.table_colliders = get_scene_colliders(&mut meshes, &mut scene.world)
-        .expect("Failed to create monkey colliders");
+        .expect("Failed to create table colliders");
 
     println!("Loaded");
     resources_state.set(ResourcesState::Loaded);
@@ -77,11 +76,8 @@ fn spawn_table(
 ) {
     commands.spawn((
         RigidBody::Fixed,
-        //Restitution::coefficient(0.7),
-        //Name::new(format!("pool_table")),
         SceneBundle {
             scene: game_resources.table.clone(),
-            //transform: Transform::from_xyz(0., 0., 0.),
             ..default()
         },
     ))
@@ -95,11 +91,11 @@ fn spawn_table(
         }
     });
 
-    commands.spawn(SceneBundle{scene: game_resources.cue.clone(), ..default()})
-        .insert(Transform{
-            scale: Vec3::splat(60.),
-            translation: Vec3::new(-10.0, 40., 100.),
-            ..default()
-        });
-        //.insert(Transform::from_scale(Vec3::splat(100.)));
+    commands
+    .spawn(SceneBundle{scene: game_resources.cue.clone(), ..default()})
+    .insert(Transform{
+        scale: Vec3::splat(60.),
+        translation: Vec3::new(-10.0, 40., 100.),
+        ..default()
+    });
 }
