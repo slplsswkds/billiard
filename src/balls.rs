@@ -1,4 +1,4 @@
-use bevy::prelude::*;
+use bevy::{prelude::*, ecs::bundle};
 use bevy_rapier3d::prelude::*;
 use crate::camera::OrbitCamera;
 
@@ -35,33 +35,10 @@ pub fn spawn_balls(
 ) {
     let mut spawn_ball = |pos: Vec3, num: u8| {
         commands.spawn((
-            Collider::ball(BALL_RADIUS),
-            RigidBody::Dynamic,
-            ColliderMassProperties::Density(1.),
-            Damping { linear_damping: 0.2, angular_damping: 0.2 },
-            GravityScale(1.),
-            Restitution::coefficient(0.95),
-            Ccd::enabled(),
-            PbrBundle{
-                mesh: meshes.add(Mesh::from(shape::UVSphere {
-                    sectors: 64,
-                    stacks: 64,
-                    radius: BALL_RADIUS
-                })),
-                material: materials.add(StandardMaterial {
-                    base_color: Color::hex("#F0F0A0").unwrap(),
-                    perceptual_roughness: 0.,
-                    reflectance: 1.,
-                    ..default()
-                }),
-                ..default()
-            },
+            BallBundle::new(&mut meshes).white(&mut materials),
             Ball::from_num(num)
         ))
-        .insert(Transform { 
-            translation: pos,
-            ..default()
-        });
+        .insert(Transform { translation: pos, ..default() });
     };
 
     let mut columns = 1u8;
@@ -77,39 +54,16 @@ pub fn spawn_balls(
             } else {
                 shift_x = BALLS_TRIANGLE_BASE.x - BALL_FRADIUS * columns as f32 + BALL_FRADIUS + BALL_FDIAMETER * col as f32;
             }
-            //println!("{}, {}, {}", counter, row, col);
-            spawn_ball(Vec3::new(shift_x, 0.0, shift_z) ,counter);
+            spawn_ball(Vec3::new(shift_x, BALL_FRADIUS, shift_z) ,counter);
         }
         columns += 1;
     }
 
-    commands.spawn(
-        PbrBundle{
-            mesh: meshes.add(Mesh::from(shape::UVSphere {
-                sectors: 64,
-                stacks: 64,
-                radius: BALL_RADIUS
-            })),
-            material: materials.add(StandardMaterial {
-                base_color: Color::hex("#010101").unwrap(),
-                perceptual_roughness: 0.,
-                reflectance: 1.,
-                ..default()
-            }),
-            transform: Transform::from_xyz(0., BALL_FRADIUS, 0.64),
-            ..default()
-        }
-    )
-    .insert((
-        RigidBody::Dynamic,
-        Collider::ball(BALL_RADIUS),
-        ColliderMassProperties::Density(1.),
-        Damping { linear_damping: 0.2, angular_damping: 0.2 },
-        GravityScale(1.),
-        Restitution::coefficient(0.95),
-        Ccd::enabled()
+    commands.spawn((
+        BallBundle::new(&mut meshes).black(&mut materials),
+        CueBall::default()
     ))
-    .insert(CueBall::default());
+    .insert(Transform::from_xyz(0., BALL_FRADIUS, 0.64));
 }
 
 pub fn hit_ball(
@@ -126,7 +80,62 @@ pub fn hit_ball(
                 impulse: -vision_direction * 0.00025,
                 torque_impulse: Vec3::splat(0.0),
             });
-            println!("succes!");
         }
+    }
+}
+
+#[derive(Bundle)]
+struct BallBundle {
+    pbr_bundle: PbrBundle,
+    rigid_body: RigidBody,
+    collider: Collider,
+    mass_proporties: ColliderMassProperties,
+    damping: Damping,
+    gravity: GravityScale,
+    restitution: Restitution,
+    ccd: Ccd,
+}
+
+impl BallBundle {
+    pub fn new(
+        meshes: &mut ResMut<'_, Assets<Mesh>>,
+    ) -> Self {
+        Self { 
+            pbr_bundle: PbrBundle { 
+                mesh: meshes.add(Mesh::from(shape::UVSphere {
+                    sectors: 64,
+                    stacks: 64,
+                    radius: BALL_RADIUS
+                })),
+                ..default()
+            },
+            rigid_body: RigidBody::Dynamic, 
+            collider: Collider::ball(BALL_RADIUS),
+            mass_proporties: ColliderMassProperties::Density(1.),
+            damping: Damping { linear_damping: 0.2, angular_damping: 0.2 },
+            gravity: GravityScale(1.),
+            restitution: Restitution::coefficient(0.95),
+            ccd: Ccd::enabled()
+        }
+    }
+
+    pub fn black(mut self, materials: &mut ResMut<Assets<StandardMaterial>>) -> Self {
+        self.pbr_bundle.material = materials.add(StandardMaterial {
+            base_color: Color::hex("#010101").unwrap(),
+            perceptual_roughness: 0.,
+            reflectance: 1.,
+            ..default()
+        });
+        self
+    }
+
+    pub fn white(mut self, materials: &mut ResMut<Assets<StandardMaterial>>) -> Self {
+        self.pbr_bundle.material = materials.add(StandardMaterial {
+            base_color: Color::hex("#F0F0A0").unwrap(),
+            perceptual_roughness: 0.,
+            reflectance: 1.,
+            ..default()
+        });
+        self
     }
 }
