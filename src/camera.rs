@@ -24,8 +24,8 @@ impl OrbitCamera {
 impl Default for OrbitCamera {
     fn default() -> Self {
         Self{
-            radius: 1.25, // r
-            angle: 0.0,
+            radius: 1.25,
+            angle: -67.5,
             height: 0.5,
         }
     }
@@ -35,7 +35,7 @@ pub fn spawn_camera(
     mut commands: Commands,
 ) {
     commands.spawn(Camera3dBundle {
-        transform: Transform::from_xyz(0.0, 0.5, 2.0).looking_at(Vec3::new(0.0, -0.25, 0.0), Vec3::Y),
+        transform: Transform::from_xyz(0.0, 0.5, 1.89).looking_at(Vec3::new(0.0, -0.25, 0.0), Vec3::Y),
         ..default()
     })
     .insert(TemporalAntiAliasBundle::default())

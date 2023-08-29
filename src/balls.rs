@@ -1,4 +1,4 @@
-use bevy::{prelude::*, ecs::bundle};
+use bevy::prelude::*;
 use bevy_rapier3d::prelude::*;
 use crate::camera::OrbitCamera;
 
@@ -7,6 +7,7 @@ const BALL_FRADIUS: f32 = BALL_RADIUS + BALL_RADIUS * 0.001;
 //const BALL_DIAMETER: f32 = BALL_RADIUS * 2.0;
 const BALL_FDIAMETER: f32 = BALL_FRADIUS * 2.0;
 const BALLS_TRIANGLE_BASE: Vec3 = Vec3::new(0.0, BALL_FRADIUS, -0.55);
+const CUEBALL_BASE_POSITION:Vec3 = Vec3::new(0., BALL_FRADIUS, 0.64);
 
 #[derive(Component)]
 pub struct Ball {
@@ -63,7 +64,7 @@ pub fn spawn_balls(
         BallBundle::new(&mut meshes).black(&mut materials),
         CueBall::default()
     ))
-    .insert(Transform::from_xyz(0., BALL_FRADIUS, 0.64));
+    .insert(Transform::from_translation(CUEBALL_BASE_POSITION));
 }
 
 pub fn hit_ball(
