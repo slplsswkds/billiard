@@ -11,12 +11,12 @@ const CUEBALL_BASE_POSITION:Vec3 = Vec3::new(0., BALL_FRADIUS, 0.64);
 
 #[derive(Component)]
 pub struct Ball {
-    _number: u8,
+    pub number: u8,
 }
 
 impl Ball {
     pub fn from_num(num: u8) -> Self {
-        Self { _number: num }
+        Self { number: num }
     }
 }
 
@@ -60,8 +60,10 @@ pub fn spawn_balls(
         columns += 1;
     }
 
+    /* Cue Ball */
     commands.spawn((
         BallBundle::new(&mut meshes).black(&mut materials),
+        Ball::from_num(0),
         CueBall::default()
     ))
     .insert(Transform::from_translation(CUEBALL_BASE_POSITION));

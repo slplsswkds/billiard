@@ -13,3 +13,5 @@
 #### v0.1.3
 * startup camera position fixed (not completely)
 * refactoring
+#### v0.1.4
+* created spatial controller: receives and contains the position of the balls
