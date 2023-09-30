@@ -15,3 +15,5 @@
 * refactoring
 #### v0.1.4
 * created spatial controller: receives and contains the position of the balls
+#### v0.1.5
+* fixed bug when balls colliders get stuck in the table collider
