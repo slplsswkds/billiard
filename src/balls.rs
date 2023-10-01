@@ -20,12 +20,78 @@ impl Ball {
     }
 }
 
-
 #[derive(Component)]
 pub struct CueBall {}
 impl Default for CueBall {
     fn default() -> Self {
         Self {  }
+    }
+}
+
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, States, Default)]
+pub enum BallsState {
+    #[default]
+    Stopped,
+    Moving
+}
+
+#[derive(Bundle)]
+struct BallBundle {
+    pbr_bundle: PbrBundle,
+    rigid_body: RigidBody,
+    collider: Collider,
+    mass_proporties: ColliderMassProperties,
+    damping: Damping,
+    gravity: GravityScale,
+    restitution: Restitution,
+    ccd: Ccd,
+    sleeping: Sleeping
+}
+
+impl BallBundle {
+    pub fn new(
+        meshes: &mut ResMut<'_, Assets<Mesh>>,
+    ) -> Self {
+        let mut sleep_conf = Sleeping::default();
+        sleep_conf.sleeping = true;
+        Self { 
+            pbr_bundle: PbrBundle { 
+                mesh: meshes.add(Mesh::from(shape::UVSphere {
+                    sectors: 64,
+                    stacks: 64,
+                    radius: BALL_RADIUS
+                })),
+                ..default()
+            },
+            rigid_body: RigidBody::Dynamic, 
+            collider: Collider::ball(BALL_RADIUS),
+            mass_proporties: ColliderMassProperties::Mass(0.155922377),
+            damping: Damping { linear_damping: 0.3, angular_damping: 0.3 },
+            gravity: GravityScale(1.),
+            restitution: Restitution::coefficient(0.95),
+            ccd: Ccd::enabled(),
+            sleeping: sleep_conf
+        }
+    }
+
+    pub fn black(mut self, materials: &mut ResMut<Assets<StandardMaterial>>) -> Self {
+        self.pbr_bundle.material = materials.add(StandardMaterial {
+            base_color: Color::hex("#010101").unwrap(),
+            perceptual_roughness: 0.,
+            reflectance: 1.,
+            ..default()
+        });
+        self
+    }
+
+    pub fn white(mut self, materials: &mut ResMut<Assets<StandardMaterial>>) -> Self {
+        self.pbr_bundle.material = materials.add(StandardMaterial {
+            base_color: Color::hex("#F0F0A0").unwrap(),
+            perceptual_roughness: 0.,
+            reflectance: 1.,
+            ..default()
+        });
+        self
     }
 }
 
@@ -74,71 +140,42 @@ pub fn hit_ball(
     q_ball: Query<(Entity, With<CueBall>)>,
     mut commands: Commands,
     keys: Res<Input<KeyCode>>,
+    mut balls_state: ResMut<NextState<BallsState>>,
 ) {
     if keys.just_pressed(KeyCode::Space) {
         let orbit_cam = q_cam.get_single().unwrap();
         let vision_direction = orbit_cam.to_decart_xz() / Vec3::splat(orbit_cam.radius);
         for (cue_ball, ()) in q_ball.iter() {
             commands.entity(cue_ball).insert(ExternalImpulse {
-                impulse: -vision_direction * 0.00025,
+                impulse: -vision_direction * 0.85,
                 torque_impulse: Vec3::splat(0.0),
             });
         }
+        balls_state.set(BallsState::Moving);
     }
 }
 
-#[derive(Bundle)]
-struct BallBundle {
-    pbr_bundle: PbrBundle,
-    rigid_body: RigidBody,
-    collider: Collider,
-    mass_proporties: ColliderMassProperties,
-    damping: Damping,
-    gravity: GravityScale,
-    restitution: Restitution,
-    ccd: Ccd,
-}
-
-impl BallBundle {
-    pub fn new(
-        meshes: &mut ResMut<'_, Assets<Mesh>>,
-    ) -> Self {
-        Self { 
-            pbr_bundle: PbrBundle { 
-                mesh: meshes.add(Mesh::from(shape::UVSphere {
-                    sectors: 64,
-                    stacks: 64,
-                    radius: BALL_RADIUS
-                })),
-                ..default()
-            },
-            rigid_body: RigidBody::Dynamic, 
-            collider: Collider::ball(BALL_RADIUS),
-            mass_proporties: ColliderMassProperties::Density(1.),
-            damping: Damping { linear_damping: 0.2, angular_damping: 0.2 },
-            gravity: GravityScale(1.),
-            restitution: Restitution::coefficient(0.95),
-            ccd: Ccd::enabled()
+pub fn moving_balls_checker(
+    balls: Query<(&Sleeping, With<Ball>)>,
+    mut balls_state: ResMut<NextState<BallsState>>,
+) {
+    let mut balls_in_move = 0u8;
+    balls.for_each(|(ball, ())| {
+        if !ball.sleeping {
+            balls_in_move += 1;
         }
-    }
+    });
+    println!("balls in move = {}", balls_in_move);
+    if balls_in_move == 0 { balls_state.set(BallsState::Stopped) }
+}
 
-    pub fn black(mut self, materials: &mut ResMut<Assets<StandardMaterial>>) -> Self {
-        self.pbr_bundle.material = materials.add(StandardMaterial {
-            base_color: Color::hex("#010101").unwrap(),
-            perceptual_roughness: 0.,
-            reflectance: 1.,
-            ..default()
-        });
-        self
-    }
-
-    pub fn white(mut self, materials: &mut ResMut<Assets<StandardMaterial>>) -> Self {
-        self.pbr_bundle.material = materials.add(StandardMaterial {
-            base_color: Color::hex("#F0F0A0").unwrap(),
-            perceptual_roughness: 0.,
-            reflectance: 1.,
-            ..default()
-        });
-        self
-    }
+pub fn pocket_hole_collector(
+    balls: Query<(Entity, &Transform), With<Ball>>,
+    mut commands: Commands,
+) {
+    balls.for_each(|(ball, transform)| {
+        if transform.translation.y < 0.0 {
+           commands.entity(ball).despawn();
+        }
+    });
 }

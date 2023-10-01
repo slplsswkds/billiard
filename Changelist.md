@@ -17,3 +17,8 @@
 * created spatial controller: receives and contains the position of the balls
 #### v0.1.5
 * fixed bug when balls colliders get stuck in the table collider
+#### v0.1.6
+* The physical properties of the balls have been edited
+* Disabled debug_game_progress_info
+* added BallsState. Now the Cue Ball cannot be hit until all balls haven't stopped
+* added pocket_hole_collector
