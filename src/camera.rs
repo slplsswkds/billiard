@@ -65,3 +65,16 @@ pub fn orbit_camera_movement(
         }
     }
 }
+
+pub fn look_at_cue_ball(
+    mut q_cam: Query<&mut Transform, With<OrbitCamera>>,
+    q_cue_ball: Query<&Transform, (With<CueBall>, Without<OrbitCamera>)>
+) {
+    let mut camera = q_cam.get_single_mut().unwrap();
+    match q_cue_ball.get_single() {
+        Err(_) => (),
+        Ok(cue_ball_transform) => {
+            camera.look_at(cue_ball_transform.translation, Vec3::Y);
+        }
+    }
+}

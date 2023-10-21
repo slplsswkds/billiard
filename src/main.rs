@@ -29,7 +29,7 @@ fn main() {
         .add_systems(Update, (orbit_camera_movement, hit_ball)
             .run_if(in_state(BallsState::Stopped))
             .run_if(in_state(ResourcesState::Loaded)))
-        .add_systems(Update, (moving_balls_checker, pocket_hole_collector)
+        .add_systems(Update, (moving_balls_checker, pocket_hole_collector, look_at_cue_ball)
             .run_if(in_state(BallsState::Moving)))
         .run();
 }

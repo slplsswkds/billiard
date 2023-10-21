@@ -22,3 +22,5 @@
 * Disabled debug_game_progress_info
 * added BallsState. Now the Cue Ball cannot be hit until all balls haven't stopped
 * added pocket_hole_collector
+#### v0.1.7
+* The camera turns towards the cue ball as it moves.
