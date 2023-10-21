@@ -24,3 +24,6 @@
 * added pocket_hole_collector
 #### v0.1.7
 * The camera turns towards the cue ball as it moves.
+#### v0.1.8
+* Edited 3D cue model
+* Added a cue that changes the position behind the camera

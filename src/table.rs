@@ -23,12 +23,4 @@ pub fn spawn_table(
             ));
         }
     });
-
-    commands
-    .spawn(SceneBundle{scene: game_resources.cue.clone(), ..default()})
-    .insert(Transform{
-        scale: Vec3::splat(60.),
-        translation: Vec3::new(-10.0, 40., 100.),
-        ..default()
-    });
 }
