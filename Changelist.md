@@ -27,3 +27,5 @@
 #### v0.1.8
 * Edited 3D cue model
 * Added a cue that changes the position behind the camera
+#### v0.1.9
+* Improved cue display
