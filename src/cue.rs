@@ -57,7 +57,7 @@ pub fn orbit_cue(
     let (mut cue_transform, mut cue) = q_cue.get_single_mut().unwrap();
     match q_cue_ball.get_single() {
         Err(_) => {},
-    Ok(cue_ball) => {
+        Ok(cue_ball) => {
             cue.radius = DEFAULT_CUE_DISTANCE + cue.power * MAX_POWER_CUE_DISTANCE;
             let x = cue.radius * cam.angle.cos();
             let z = cue.radius * cam.angle.sin();
@@ -71,7 +71,7 @@ pub fn orbit_cue(
 
 pub fn hit_ball(
     q_cam: Query<&OrbitCamera>,
-    q_ball: Query<(Entity, With<CueBall>)>,
+    q_ball: Query<Entity, With<CueBall>>,
     mut commands: Commands,
     keys: Res<Input<KeyCode>>,
     mut balls_state: ResMut<NextState<BallsState>>,
@@ -86,12 +86,14 @@ pub fn hit_ball(
     if keys.just_released(KeyCode::Space) {
         let orbit_cam = q_cam.get_single().unwrap();
         let vision_direction = orbit_cam.to_decart_xz() / Vec3::splat(orbit_cam.radius);
-        for (cue_ball, ()) in q_ball.iter() {
-            commands.entity(cue_ball).insert(ExternalImpulse {
-                impulse: -vision_direction * cue.power,
-                torque_impulse: Vec3::splat(0.0),
-            });
-        }
+
+        let cue_ball = q_ball.get_single().unwrap();
+    
+        commands.entity(cue_ball).insert(ExternalImpulse {
+            impulse: -vision_direction * cue.power,
+            torque_impulse: Vec3::splat(0.0),
+        });
+
         balls_state.set(BallsState::Moving);
         cue.power = 0.0;
     }

@@ -34,12 +34,17 @@ impl Default for OrbitCamera {
 pub fn spawn_camera(
     mut commands: Commands,
 ) {
-    commands.spawn(Camera3dBundle {
+    commands.spawn((
+        Camera3dBundle {
+            camera: Camera {
+                ..default()
+            },
         transform: Transform::from_xyz(0.0, 0.5, 1.89).looking_at(Vec3::new(0.0, -0.25, 0.0), Vec3::Y),
         ..default()
-    })
-    .insert(TemporalAntiAliasBundle::default())
-    .insert(OrbitCamera::default());
+        },
+        TemporalAntiAliasBundle::default(),
+        OrbitCamera::default(),
+    ));
 }
 
 pub fn orbit_camera_movement(

@@ -34,3 +34,8 @@
 * Added visualisation of cue power
 #### v0.1.11
 * Added the option to select a cue ball position
+#### v0.1.12
+* Removed cue vibration when rotating the camera
+* MSAA
+* Increased ShadowMap
+* Added Bloom

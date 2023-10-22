@@ -2,7 +2,7 @@ use bevy::prelude::*;
 use bevy_rapier3d::prelude::*;
 
 pub const BALL_RADIUS: f32 = 0.025;
-pub const BALL_FRADIUS: f32 = BALL_RADIUS + BALL_RADIUS * 0.001;
+pub const BALL_FRADIUS: f32 = BALL_RADIUS + BALL_RADIUS * 0.000001;
 //const BALL_DIAMETER: f32 = BALL_RADIUS * 2.0;
 const BALL_FDIAMETER: f32 = BALL_FRADIUS * 2.0;
 const BALLS_TRIANGLE_BASE: Vec3 = Vec3::new(0.0, BALL_FRADIUS, -0.55);
