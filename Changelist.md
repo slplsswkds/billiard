@@ -29,3 +29,6 @@
 * Added a cue that changes the position behind the camera
 #### v0.1.9
 * Improved cue display
+#### v0.1.10
+* The impact force of the cue is controlled
+* Added visualisation of cue power

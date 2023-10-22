@@ -1,9 +1,8 @@
 use bevy::prelude::*;
 use bevy_rapier3d::prelude::*;
-use crate::camera::OrbitCamera;
 
 pub const BALL_RADIUS: f32 = 0.025;
-const BALL_FRADIUS: f32 = BALL_RADIUS + BALL_RADIUS * 0.001;
+pub const BALL_FRADIUS: f32 = BALL_RADIUS + BALL_RADIUS * 0.001;
 //const BALL_DIAMETER: f32 = BALL_RADIUS * 2.0;
 const BALL_FDIAMETER: f32 = BALL_FRADIUS * 2.0;
 const BALLS_TRIANGLE_BASE: Vec3 = Vec3::new(0.0, BALL_FRADIUS, -0.55);
@@ -133,26 +132,6 @@ pub fn spawn_balls(
         CueBall::default()
     ))
     .insert(Transform::from_translation(CUEBALL_BASE_POSITION));
-}
-
-pub fn hit_ball(
-    q_cam: Query<&OrbitCamera>,
-    q_ball: Query<(Entity, With<CueBall>)>,
-    mut commands: Commands,
-    keys: Res<Input<KeyCode>>,
-    mut balls_state: ResMut<NextState<BallsState>>,
-) {
-    if keys.just_pressed(KeyCode::Space) {
-        let orbit_cam = q_cam.get_single().unwrap();
-        let vision_direction = orbit_cam.to_decart_xz() / Vec3::splat(orbit_cam.radius);
-        for (cue_ball, ()) in q_ball.iter() {
-            commands.entity(cue_ball).insert(ExternalImpulse {
-                impulse: -vision_direction * 0.85,
-                torque_impulse: Vec3::splat(0.0),
-            });
-        }
-        balls_state.set(BallsState::Moving);
-    }
 }
 
 pub fn moving_balls_checker(

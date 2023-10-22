@@ -26,7 +26,7 @@ impl Default for OrbitCamera {
         Self{
             radius: 1.25,
             angle: -67.5,
-            height: 0.5,
+            height: 0.3,
         }
     }
 }
@@ -60,7 +60,7 @@ pub fn orbit_camera_movement(
             let z = orbit_cam.radius * orbit_cam.angle.sin();
             transform.translation.x = cue_ball_pos.x + x;
             transform.translation.z = cue_ball_pos.z + z;
-            transform.translation.y = orbit_cam.radius / 3.0;
+            transform.translation.y = orbit_cam.height;
             transform.look_at(cue_ball_pos, Vec3::Y);
         }
     }
