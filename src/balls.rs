@@ -7,6 +7,7 @@ pub const BALL_FRADIUS: f32 = BALL_RADIUS + BALL_RADIUS * 0.001;
 const BALL_FDIAMETER: f32 = BALL_FRADIUS * 2.0;
 const BALLS_TRIANGLE_BASE: Vec3 = Vec3::new(0.0, BALL_FRADIUS, -0.55);
 pub const CUEBALL_BASE_POSITION:Vec3 = Vec3::new(0., BALL_FRADIUS, 0.64);
+const MANUAL_MOVE_BALL_SPEED_K: f32 = 0.3;
 
 #[derive(Component)]
 pub struct Ball {
@@ -31,7 +32,8 @@ impl Default for CueBall {
 pub enum BallsState {
     #[default]
     Stopped,
-    Moving
+    Moving,
+    Manual
 }
 
 #[derive(Bundle)]
@@ -157,4 +159,45 @@ pub fn pocket_hole_collector(
            commands.entity(ball).despawn();
         }
     });
+}
+
+pub fn cue_ball_choose_position(
+    mut q_cue_ball: Query<&mut Transform, With<CueBall>>,
+    keys: Res<Input<KeyCode>>,
+    time: Res<Time>,
+    mut balls_state: ResMut<NextState<BallsState>>,
+    mut commands: Commands, 
+    mut meshes: ResMut<Assets<Mesh>>, 
+    mut materials: ResMut<Assets<StandardMaterial>>,
+) {
+    match q_cue_ball.get_single_mut() {
+        Err(_) => {
+            commands.spawn((
+                BallBundle::new(&mut meshes).black(&mut materials),
+                Ball::from_num(0),
+                CueBall::default()
+            ))
+            .insert(Transform::from_translation(CUEBALL_BASE_POSITION + Vec3::new(0.0, BALL_FDIAMETER, 0.0)));
+        }
+        Ok(mut cue_ball) => {
+            if keys.just_pressed(KeyCode::ControlLeft) {
+                balls_state.set(BallsState::Manual)
+            }
+            if keys.just_released(KeyCode::ControlLeft) {
+                balls_state.set(BallsState::Stopped)
+            }
+            if keys.pressed(KeyCode::ControlLeft) {
+                if keys.pressed(KeyCode::W) {
+                    cue_ball.translation.z -= time.delta_seconds() * MANUAL_MOVE_BALL_SPEED_K;
+                }else if keys.pressed(KeyCode::S) {
+                    cue_ball.translation.z += time.delta_seconds() * MANUAL_MOVE_BALL_SPEED_K;
+                }
+                if keys.pressed(KeyCode::A) {
+                    cue_ball.translation.x -= time.delta_seconds() * MANUAL_MOVE_BALL_SPEED_K;
+                }else if keys.pressed(KeyCode::D) {
+                    cue_ball.translation.x += time.delta_seconds() * MANUAL_MOVE_BALL_SPEED_K;
+                }
+            }
+        }
+    }
 }

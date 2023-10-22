@@ -32,3 +32,5 @@
 #### v0.1.10
 * The impact force of the cue is controlled
 * Added visualisation of cue power
+#### v0.1.11
+* Added the option to select a cue ball position
